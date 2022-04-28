@@ -1,0 +1,150 @@
+cudnn:
+  benchmark: false
+  deterministic: false
+  enabled: true
+
+workers: 4
+print_freq: 100
+distance: 3
+
+
+
+dataset:
+  name: "PoseTrack"
+  json_dir: "./DcPose_supp_files/posetrack17_json_files"
+  img_dir: "./data/PoseTrack2017/images_renamed"
+  test_img_dir: "./data/PoseTrack2017/posetrack_data/images"
+  is_posetrack18: false
+  color_rgb: true
+  dataset: 'PoseTrack'
+  root: ''
+  test_set: 'val2017'
+  train_set: 'train2017'
+  input_type: 'spatiotemporal_window'
+  bbox_enlarge_factor: 1.25
+
+
+model:
+  freeze_hrnet_weights: true
+  freeze_prednet_weights: true
+  evaluate: true
+  init_weights: true
+
+  num_joints: 17
+  pretrained: './DcPose_supp_files/pretrained_models/out_model.pth'
+  target_type: gaussian
+  image_size:
+    - 288
+    - 384
+  heatmap_size:
+    - 72
+    - 96
+  sigma: 3
+  use_rectifier: true
+
+  extra:
+    pretrained_layers:
+      - '*'
+    final_conv_kernel: 1
+    stage2:
+      num_modules: 1
+      num_branches: 2
+      block: BASIC
+      num_blocks:
+        - 4
+        - 4
+      num_channels:
+        - 48
+        - 96
+      fuse_method: SUM
+    stage3:
+      num_modules: 4
+      num_branches: 3
+      block: BASIC
+      num_blocks:
+        - 4
+        - 4
+        - 4
+      num_channels:
+        - 48
+        - 96
+        - 192
+      fuse_method: SUM
+    stage4:
+      num_modules: 3
+      num_branches: 4
+      block: BASIC
+      num_blocks:
+        - 4
+        - 4
+        - 4
+        - 4
+      num_channels:
+        - 48
+        - 96
+        - 192
+        - 384
+      fuse_method: SUM
+    deconv:
+      num_deconvs: 1
+      num_channels:
+        - 48
+      kernel_size:
+        - 4
+      num_basic_blocks: 4
+      cat_output:
+        - True
+
+train:
+  flip: true
+  num_joints_half_body: 8
+  prob_half_body: 0.3
+  rot_factor: 45
+  scale_factor: 0.35
+  shuffle: true
+  begin_epoch: 0
+  end_epoch: 60
+  optimizer: adam
+  lr: 0.0001
+  lr_factor: 0.1
+  milestones:
+    - 8
+    - 12
+    - 16
+  gamma: 0.99
+  lr_step:
+    - 8
+    - 12
+    - 16
+  wd: 0.0001
+  gamma1: 0.99
+  gamma2: 0.0
+  momentum: 0.9
+  nesterov: false
+
+val:
+  #  ANNOT_DIR: './MPPE_Supp_Files/posetrack17_annotation_dirs/jsons/val/'
+  annot_dir: './DcPose_supp_files/posetrack17_annotation_dirs/jsons/val/'
+  #  COCO_BBOX_FILE: './MPPE_Supp_Files/posetrack17_precomputed_boxes/val_boxes.json'
+  coco_bbox_file: './DcPose_supp_files/posetrack17_precomputed_boxes/val_boxes.json'
+  #  COCO_BBOX_FILE: './DcPose_supp_files/posetrack17_precomputed_boxes/DetectoRS_val_boxes.json'
+  use_gt_bbox: false
+  bbox_thre: 1.0
+  image_thre: 0.2
+  in_vis_thre: 0.2
+  nms_thre: 1.0
+  oks_thre: 0.9
+  flip_val: false
+  post_process: true
+
+test:
+  annot_dir: './DcPose_supp_files/posetrack17_annotation_dirs/jsons/test'
+  coco_bbox_file: './DcPose_supp_files/posetrack17_precomputed_boxes/test_boxes.json'
+  use_gt_bbox: false
+  bbox_thre: 1.0
+  image_thre: 0.2
+  in_vis_thre: 0.2
+  nms_thre: 1.0
+  oks_thre: 0.9
+  flip_test: false
+  post_process: true

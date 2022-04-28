@@ -1,0 +1,48 @@
+_BASE_: "../Base_PoseTrack17.yaml"
+experiment_name: 'FAMIPose_Extension_V1'
+workers: 0
+gpus: (1,)
+output_dir: './output/FAMIPose_Extension/'
+
+ema:
+  start: false
+  eval: true
+
+print_freq: 20
+
+distance: 3
+core_function: DemoFunction
+dataset:
+  name: "DemoPoseTrack"
+
+model:
+  name: FAMIPose_Extension
+  pretrained: './DcPose_supp_files/pretrained_models/out_model.pth'
+  backbone_pretrained: './DcPose_supp_files/pretrained_models/out_model.pth'
+loss:
+  heatmap_mse:
+    use: true
+    weight: 1.0
+
+train:
+  auto_resume: true
+  save_model_freq: 1
+  batch_size_per_gpu: 24
+  lr: 1e-3
+  end_epoch: 21
+  milestones:
+    - 10
+    - 15
+val:
+  batch_size_per_gpu: 28
+  model_file: ''
+  flip: true
+  use_gt_bbox: true
+#  coco_bbox_file: './DcPose_supp_files/posetrack17_precomputed_boxes/DetectoRS_val_boxes.json'
+test:
+  batch_size_per_gpu: 256
+  model_file: ''
+
+debug:
+  vis_skeleton: false
+  vis_bbox: false
